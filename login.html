@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e63946">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https:;">
+<title>Entrar | Mania de Pizza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1 id="page-title">Entrar</h1>
+</header>
+
+<main class="mdp-container" style="max-width:430px">
+  <div class="mdp-card">
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:48px" id="role-emoji">🍕</div>
+      <h2 style="margin-top:6px" id="role-label">Acesso à conta</h2>
+      <p style="color:var(--text-muted);font-size:14px;margin-top:4px">Digite seu e-mail e senha</p>
+    </div>
+
+    <form id="login-form" autocomplete="on" novalidate>
+      <div class="mdp-field">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" class="mdp-input" autocomplete="email"
+               required maxlength="120" inputmode="email" placeholder="seu@email.com">
+      </div>
+      <div class="mdp-field">
+        <label for="password">Senha</label>
+        <input type="password" id="password" class="mdp-input" autocomplete="current-password"
+               required maxlength="80" placeholder="Sua senha">
+      </div>
+
+      <div id="err-msg" class="mdp-error-msg" style="display:none"></div>
+
+      <button type="submit" class="mdp-btn full lg" id="submit-btn">Entrar</button>
+    </form>
+
+    <div style="text-align:center;margin-top:16px;font-size:14px" id="signup-link"></div>
+  </div>
+
+  <div id="dev-creds" class="mdp-card" style="display:none;background:#fef3c7;border-color:#fcd34d;font-size:13px">
+    <h3 style="color:#92400e">🔧 Contas de demonstração</h3>
+    <p style="margin-top:6px;color:#78350f">Na primeira vez que usar uma destas contas, defina sua senha:</p>
+    <ul style="margin:10px 0 0 18px;color:#78350f">
+      <li><b>Dono:</b> dono@maniadepizza.com</li>
+      <li><b>Gerente:</b> gerente@maniadepizza.com</li>
+      <li><b>Atendente:</b> atendente@maniadepizza.com</li>
+    </ul>
+  </div>
+</main>
+
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/validators.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const params = new URLSearchParams(location.search);
+  const wantedRole = params.get('role'); // cliente | motoboy
+  const isStaff = params.get('staff') === '1';
+
+  // Configura UI por contexto
+  const cfg = {
+    cliente: { emoji: '🛒', label: 'Entrar como Cliente', signup: 'cadastro-cliente.html', back: 'cliente-entrada.html' },
+    motoboy: { emoji: '🛵', label: 'Entrar como Motoboy', signup: 'cadastro-motoboy.html', back: 'motoboy-entrada.html' }
+  };
+  const c = cfg[wantedRole] || { emoji: '🏪', label: 'Acesso da Equipe', signup: null, back: 'index.html' };
+
+  document.getElementById('role-emoji').textContent = c.emoji;
+  document.getElementById('role-label').textContent = c.label;
+  document.getElementById('back-slot').innerHTML = MDPUI.backButton(c.back);
+  if (c.signup) {
+    document.getElementById('signup-link').innerHTML =
+      'Não tem conta? <a href="' + c.signup + '"><b>Cadastre-se</b></a>';
+  }
+  if (isStaff) {
+    document.getElementById('dev-creds').style.display = 'block';
+  }
+
+  // Se já logado, redireciona
+  (async function () {
+    const s = await MDPSecurity.getSession();
+    if (s) {
+      const redirect = {
+        cliente: 'comprador.html', motoboy: 'motoboy.html',
+        atendente: 'painel-atendente.html', gerente: 'painel-gerente.html', dono: 'painel-gerente.html'
+      }[s.role];
+      if (redirect) location.href = redirect;
+    }
+  })();
+
+  function showErr(msg) {
+    const el = document.getElementById('err-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function clearErr() { document.getElementById('err-msg').style.display = 'none'; }
+
+  document.getElementById('login-form').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    clearErr();
+
+    if (!MDPSecurity.rateLimit('login', 8)) {
+      showErr('Muitas tentativas. Aguarde um instante.');
+      return;
+    }
+
+    const email = MDPSecurity.cleanInput(document.getElementById('email').value, 120).toLowerCase();
+    const password = document.getElementById('password').value;
+
+    if (!MDPValidators.isValidEmail(email)) { showErr('E-mail inválido.'); return; }
+    if (!password || password.length < 4) { showErr('Senha obrigatória.'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.textContent = 'Verificando…';
+
+    try {
+      const user = await MDPApi.findUserByEmail(email);
+      if (!user) {
+        showErr('E-mail ou senha incorretos.');
+        return;
+      }
+
+      // Verifica role compatível com a entrada (anti-burla)
+      if (wantedRole && user.role !== wantedRole) {
+        showErr('Esta conta não tem permissão para esta área. Use a entrada correta.');
+        return;
+      }
+      if (isStaff && ['atendente','gerente','dono'].indexOf(user.role) === -1) {
+        showErr('Esta conta não pertence à equipe da loja.');
+        return;
+      }
+
+      // Conta de DEMO sem senha definida → primeira senha define
+      if (user.password_hash === 'INIT') {
+        const ok = await MDPUI.confirmDialog(
+          'Esta é uma conta de demonstração sem senha definida. Vamos definir sua senha agora como "' + password + '". Continuar?'
+        );
+        if (!ok) return;
+        const h = await MDPSecurity.hashPassword(password);
+        await MDPApi.patch('users', user.id, {
+          password_hash: h.hash, password_salt: h.salt
+        });
+        user.password_hash = h.hash; user.password_salt = h.salt;
+      } else {
+        const ok = await MDPSecurity.verifyPassword(password, user.password_hash, user.password_salt);
+        if (!ok) { showErr('E-mail ou senha incorretos.'); return; }
+      }
+
+      // Status da conta
+      if (user.status === 'pendente') {
+        showErr('Seu cadastro ainda está aguardando pré-aprovação da loja.'); return;
+      }
+      if (user.status === 'pre_aprovado') {
+        showErr('Seu cadastro foi pré-aprovado pelo atendente. Aguardando aprovação final do gerente.'); return;
+      }
+      if (user.status === 'reprovado') {
+        showErr('Cadastro reprovado. Motivo: ' + (user.reprovacao_motivo || 'não informado'));
+        return;
+      }
+      if (user.status === 'bloqueado') {
+        showErr('Conta bloqueada. Procure o gerente.'); return;
+      }
+
+      // Cria sessão
+      await MDPSecurity.createSession(user);
+      MDPUI.toast('Bem-vindo, ' + (user.nome || user.email) + '!', 'success');
+
+      const target = {
+        cliente: 'comprador.html', motoboy: 'motoboy.html',
+        atendente: 'painel-atendente.html', gerente: 'painel-gerente.html', dono: 'painel-gerente.html'
+      }[user.role] || 'index.html';
+      setTimeout(function () { location.href = target; }, 600);
+    } catch (e) {
+      console.error(e);
+      showErr('Erro ao tentar entrar. Tente novamente.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  });
+})();
+</script>
+</body>
+</html>

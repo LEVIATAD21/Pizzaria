@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#059669">
+<title>Baixar projeto (ZIP) | Mania de Pizza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/global.css">
+<style>
+  body { background: linear-gradient(135deg, #ecfdf5, #f0fdfa); }
+  .file-list { max-height: 360px; overflow-y: auto; background: #f9fafb; border-radius: 12px; padding: 14px; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 13px; }
+  .file-row { padding: 4px 0; border-bottom: 1px dashed #e5e7eb; display: flex; justify-content: space-between; }
+  .progress { height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden; margin: 14px 0; }
+  .progress > div { height: 100%; background: linear-gradient(90deg, #059669, #10b981); width: 0%; transition: width .15s; }
+</style>
+</head>
+<body>
+
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>📦 Baixar projeto completo</h1>
+</header>
+
+<main class="mdp-container" style="max-width:680px">
+  <div class="mdp-card">
+    <h2 style="margin-bottom:6px">Mania de Pizza V3 — Pacote completo</h2>
+    <p style="color:var(--text-muted);margin-bottom:14px">Baixe um arquivo <b>.zip</b> com todos os arquivos do projeto (HTML, CSS, JS, manifest, README) prontos para você hospedar onde quiser.</p>
+
+    <div class="mdp-card" style="background:#f0fdf4;border-color:#86efac;margin-bottom:14px">
+      <h3 style="color:#166534">✅ O que vem no pacote</h3>
+      <ul style="margin-left:18px;color:#15803d;font-size:14px;line-height:1.8">
+        <li>Landing + escolha de perfil</li>
+        <li>Cadastro Cliente (estilo iFood com CEP, múltiplos endereços)</li>
+        <li>Cadastro Motoboy (CPF, CNH, placa, fotos)</li>
+        <li>Login simples (email + senha)</li>
+        <li>App do Comprador (cardápio + carrinho + checkout + rastreio mapa)</li>
+        <li>App do Motoboy (com scanner QR funcional)</li>
+        <li>Painel Atendente (pré-aprovação + balcão)</li>
+        <li>Painel Gerente (Kanban + alarme 5min + QR rotativo + frota)</li>
+        <li>PWA (manifest + service worker)</li>
+        <li>README completo</li>
+      </ul>
+    </div>
+
+    <button class="mdp-btn full lg success" id="btn-baixar">📥 Gerar e baixar ZIP</button>
+
+    <div class="progress" id="progress-wrap" style="display:none"><div id="progress-bar"></div></div>
+    <div id="status" style="text-align:center;margin-top:10px;color:var(--text-muted);font-size:14px"></div>
+
+    <h3 style="margin-top:18px">Arquivos no pacote</h3>
+    <div class="file-list" id="file-list">
+      <div class="file-row"><span>Carregando lista de arquivos…</span></div>
+    </div>
+
+    <div class="mdp-card" style="background:#fef3c7;border-color:#fcd34d;margin-top:14px;font-size:13px">
+      <h3 style="color:#92400e">⚠ Importante após baixar</h3>
+      <p style="color:#78350f">Este ZIP contém somente os arquivos estáticos (front-end). Para a parte de <b>banco de dados</b> (RESTful Table API) você precisará configurar um backend. Veja a seção <b>"Backend & API"</b> no <code>README.md</code>.</p>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="js/ui.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  // Lista de arquivos a empacotar (paths relativos ao projeto)
+  const FILES = [
+    'index.html',
+    'cliente-entrada.html',
+    'motoboy-entrada.html',
+    'login.html',
+    'cadastro-cliente.html',
+    'cadastro-motoboy.html',
+    'comprador.html',
+    'motoboy.html',
+    'painel-atendente.html',
+    'painel-gerente.html',
+    'manifest.json',
+    'sw.js',
+    'css/global.css',
+    'js/security.js',
+    'js/api.js',
+    'js/ui.js',
+    'js/qr-core.js',
+    'js/validators.js',
+    'js/comprador.js',
+    'js/motoboy.js',
+    'js/painel-atendente.js',
+    'js/painel-gerente.js',
+    'README.md'
+  ];
+
+  document.getElementById('back-slot').innerHTML = MDPUI.backButton('index.html');
+
+  // Mostra a lista
+  document.getElementById('file-list').innerHTML = FILES.map(f =>
+    '<div class="file-row"><span>📄 ' + f + '</span><span style="color:var(--text-muted)">…</span></div>'
+  ).join('');
+
+  document.getElementById('btn-baixar').addEventListener('click', async function () {
+    const btn = this;
+    btn.disabled = true; btn.textContent = 'Gerando ZIP…';
+    document.getElementById('progress-wrap').style.display = 'block';
+    const status = document.getElementById('status');
+
+    const zip = new JSZip();
+    let done = 0;
+
+    for (const path of FILES) {
+      try {
+        status.textContent = 'Baixando ' + path;
+        const r = await fetch(path);
+        if (r.ok) {
+          const blob = await r.blob();
+          zip.file(path, blob);
+        } else {
+          // arquivo opcional: adiciona placeholder
+          zip.file(path, '/* arquivo não disponível: ' + path + ' */');
+        }
+      } catch (e) {
+        console.warn('Falhou:', path, e);
+      }
+      done++;
+      const pct = (done / FILES.length) * 100;
+      document.getElementById('progress-bar').style.width = pct + '%';
+    }
+
+    status.textContent = 'Compactando…';
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'mania-de-pizza-v3-' + new Date().toISOString().slice(0,10) + '.zip';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+    status.textContent = '✅ Download iniciado!';
+    btn.textContent = '✓ Baixado · gerar novamente';
+    btn.disabled = false;
+    MDPUI.toast('ZIP gerado com sucesso!', 'success');
+  });
+})();
+</script>
+</body>
+</html>

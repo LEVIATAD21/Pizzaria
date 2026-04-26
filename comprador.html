@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e63946">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https: wss: https://*.tile.openstreetmap.org https://viacep.com.br;">
+<title>Cardápio | Mania de Pizza</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/global.css">
+<style>
+  body { padding-bottom: 80px; }
+  .menu-tabs { display: flex; gap: 6px; padding: 12px 18px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .menu-tab {
+    padding: 8px 16px; border-radius: 999px; background: #fff;
+    border: 1.5px solid var(--border); white-space: nowrap; cursor: pointer;
+    font: 600 14px inherit; color: var(--text-muted);
+  }
+  .menu-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .product-grid {
+    display: grid; grid-template-columns: 1fr; gap: 12px;
+    padding: 14px 18px;
+  }
+  @media (min-width: 700px) { .product-grid { grid-template-columns: 1fr 1fr; } }
+  .product-card {
+    display: grid; grid-template-columns: 1fr 110px; gap: 12px;
+    background: #fff; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+    transition: transform .15s, box-shadow .2s;
+  }
+  .product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .product-card .info { padding: 14px 0 14px 14px; }
+  .product-card h3 { font-size: 15px; margin-bottom: 4px; }
+  .product-card .desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 6px; }
+  .product-card .preco { font-weight: 700; color: var(--primary-dark); font-size: 16px; }
+  .product-card img { width: 110px; height: 110px; object-fit: cover; }
+  .product-card .add-btn {
+    background: var(--primary); color: #fff; border: none; padding: 4px 10px;
+    border-radius: 999px; font: 600 13px inherit; cursor: pointer; margin-top: 6px;
+  }
+  /* Cart bar */
+  .cart-bar {
+    position: fixed; bottom: 14px; left: 14px; right: 14px; max-width: 920px;
+    margin: 0 auto; background: var(--primary); color: #fff;
+    padding: 14px 18px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 12px 30px rgba(230,57,70,.4); cursor: pointer;
+    z-index: 90; transition: transform .2s;
+  }
+  .cart-bar:hover { transform: translateY(-2px); }
+  .cart-bar.hidden { display: none; }
+  .cart-bar .count { font-weight: 700; }
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200;
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fadeIn .2s;
+  }
+  .modal {
+    background: #fff; border-radius: 20px 20px 0 0;
+    width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+    padding: 22px 18px; animation: slideUp .25s;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:none} }
+  .modal h2 { margin-bottom: 12px; }
+  /* Cart items */
+  .cart-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: center; }
+  .cart-item img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; }
+  .cart-item .info { flex: 1; }
+  .cart-item .info b { display: block; font-size: 14px; }
+  .cart-item .info .preco { font-size: 12px; color: var(--text-muted); }
+  .qty { display: flex; gap: 4px; align-items: center; }
+  .qty button { width: 28px; height: 28px; border: 1px solid var(--border); background: #fff; border-radius: 50%; cursor: pointer; font-weight: 700; }
+  .qty span { min-width: 22px; text-align: center; font-weight: 600; }
+  /* Status pedido */
+  .status-row { display: flex; gap: 8px; margin: 14px 0; }
+  .status-step { flex: 1; padding: 8px 4px; text-align: center; border-radius: 8px; background: #f3f4f6; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+  .status-step.active { background: var(--primary); color: #fff; }
+  .status-step.done { background: var(--success); color: #fff; }
+  #map-rastreio { height: 320px; border-radius: 14px; margin-top: 12px; }
+  /* Endereços list */
+  .addr-card {
+    border: 2px solid var(--border); border-radius: 12px; padding: 12px;
+    margin-bottom: 8px; cursor: pointer; transition: border-color .15s;
+  }
+  .addr-card:hover { border-color: var(--primary-light); }
+  .addr-card.selected { border-color: var(--primary); background: #fff8f0; }
+</style>
+</head>
+<body>
+
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>🍕 Cardápio</h1>
+  <button onclick="abrirPerfil()" class="mdp-btn secondary" style="padding:6px 12px;font-size:13px" id="user-chip">…</button>
+</header>
+
+<nav class="menu-tabs" id="menu-tabs"></nav>
+<section class="product-grid" id="product-grid"></section>
+
+<div class="cart-bar hidden" id="cart-bar" onclick="abrirCarrinho()">
+  <span class="count" id="cart-count">0 itens</span>
+  <span style="font-size:13px;opacity:.85">Ver carrinho →</span>
+  <span class="total" id="cart-total">R$ 0,00</span>
+</div>
+
+<!-- Pedido em andamento (banner) -->
+<div id="pedido-ativo-banner" style="display:none"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/validators.js"></script>
+<script src="js/comprador.js"></script>
+</body>
+</html>

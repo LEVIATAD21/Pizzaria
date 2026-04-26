@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1d4ed8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https:; media-src 'self' blob:;">
+<title>Cadastro de Motoboy | Mania de Pizza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/global.css">
+<style>
+  .photo-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .photo-zone:hover { border-color: var(--primary); background: #fff8f0; }
+  .photo-zone.has-photo { border-color: var(--success); background: #ecfdf5; }
+  .photo-zone img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 8px; }
+  .photo-zone .icon { font-size: 36px; opacity: .5; margin-bottom: 4px; }
+  .step-bar { display:flex; gap:6px; margin-bottom:18px; }
+  .step-bar .step { flex:1; height:6px; background:#e5e7eb; border-radius:3px; transition:background .25s; }
+  .step-bar .step.active { background: #1d4ed8; }
+  .step-bar .step.done { background: var(--success); }
+  .step-section { display: none; }
+  .step-section.active { display: block; animation: fadeIn .25s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .mdp-btn.full.lg { background:#1d4ed8; }
+  .mdp-btn.outline { color:#1d4ed8;border-color:#1d4ed8; }
+</style>
+</head>
+<body>
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>Cadastro de Motoboy</h1>
+  <span class="role-badge" style="background:#dbeafe;color:#1e40af">Motoboy</span>
+</header>
+
+<main class="mdp-container" style="max-width:560px">
+  <div class="mdp-card">
+    <div class="step-bar">
+      <div class="step active" id="bar-1"></div>
+      <div class="step" id="bar-2"></div>
+      <div class="step" id="bar-3"></div>
+      <div class="step" id="bar-4"></div>
+    </div>
+
+    <form id="signup-form" novalidate>
+
+      <!-- ETAPA 1: Conta -->
+      <section class="step-section active" id="sec-1">
+        <h2>Criar conta</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:14px">Comece com seu e-mail e uma senha forte.</p>
+        <div class="mdp-field">
+          <label>Nome completo *</label>
+          <input type="text" id="nome" class="mdp-input" required maxlength="120" autocomplete="name">
+        </div>
+        <div class="mdp-field">
+          <label>Celular / WhatsApp *</label>
+          <input type="tel" id="telefone" class="mdp-input" required maxlength="16" inputmode="numeric" autocomplete="tel" placeholder="(21) 99999-9999">
+        </div>
+        <div class="mdp-field">
+          <label>E-mail *</label>
+          <input type="email" id="email" class="mdp-input" required maxlength="120" autocomplete="email">
+        </div>
+        <div class="mdp-field">
+          <label>Senha *</label>
+          <input type="password" id="password" class="mdp-input" required minlength="8" maxlength="80" autocomplete="new-password">
+          <div class="hint">Mínimo 8 caracteres com letras e números</div>
+        </div>
+        <button type="button" class="mdp-btn full lg" onclick="goStep(2)">Continuar →</button>
+      </section>
+
+      <!-- ETAPA 2: Documentos -->
+      <section class="step-section" id="sec-2">
+        <h2>Documentos pessoais</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:14px">Necessários para validação. Seus dados ficam protegidos por LGPD.</p>
+        <div class="mdp-field">
+          <label>CPF *</label>
+          <input type="text" id="cpf" class="mdp-input" required maxlength="14" inputmode="numeric" placeholder="000.000.000-00">
+        </div>
+        <div class="mdp-field">
+          <label>RG *</label>
+          <input type="text" id="rg" class="mdp-input" required maxlength="20">
+        </div>
+        <div class="mdp-row">
+          <div class="mdp-field">
+            <label>CNH (número) *</label>
+            <input type="text" id="cnh" class="mdp-input" required maxlength="11" inputmode="numeric">
+          </div>
+          <div class="mdp-field">
+            <label>Categoria *</label>
+            <select id="cnh_categoria" class="mdp-select" required>
+              <option value="">--</option>
+              <option value="A">A</option>
+              <option value="AB">AB</option>
+              <option value="ACC">ACC</option>
+            </select>
+          </div>
+        </div>
+        <div class="mdp-field">
+          <label>Validade da CNH *</label>
+          <input type="date" id="cnh_validade" class="mdp-input" required>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button type="button" class="mdp-btn secondary" onclick="goStep(1)">← Voltar</button>
+          <button type="button" class="mdp-btn lg" style="flex:1" onclick="goStep(3)">Continuar →</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 3: Veículo -->
+      <section class="step-section" id="sec-3">
+        <h2>Sua moto</h2>
+        <div class="mdp-row">
+          <div class="mdp-field">
+            <label>Placa (Mercosul) *</label>
+            <input type="text" id="placa" class="mdp-input" required maxlength="8" placeholder="ABC1D23" style="text-transform:uppercase">
+          </div>
+          <div class="mdp-field">
+            <label>Cor *</label>
+            <input type="text" id="moto_cor" class="mdp-input" required maxlength="20">
+          </div>
+        </div>
+        <div class="mdp-field">
+          <label>Modelo / Marca *</label>
+          <input type="text" id="moto_modelo" class="mdp-input" required maxlength="60" placeholder="Honda CG 160 Fan">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button type="button" class="mdp-btn secondary" onclick="goStep(2)">← Voltar</button>
+          <button type="button" class="mdp-btn lg" style="flex:1" onclick="goStep(4)">Continuar →</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 4: Fotos -->
+      <section class="step-section" id="sec-4">
+        <h2>Fotos para validação</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:14px">Envie sua foto 3x4 e a foto da CNH (frente). Use boa iluminação.</p>
+
+        <div class="mdp-field">
+          <label>Foto 3x4 (rosto) *</label>
+          <label class="photo-zone" id="zone-3x4" for="file-3x4">
+            <div class="icon">📸</div>
+            <div><b>Toque para tirar foto ou enviar</b></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Rosto centralizado, boa luz</div>
+            <img id="preview-3x4" alt="" style="display:none">
+          </label>
+          <input type="file" id="file-3x4" accept="image/*" capture="user" style="display:none">
+        </div>
+
+        <div class="mdp-field">
+          <label>Foto da CNH (frente) *</label>
+          <label class="photo-zone" id="zone-cnh" for="file-cnh">
+            <div class="icon">📄</div>
+            <div><b>Toque para tirar foto ou enviar</b></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">CNH legível, sem reflexo</div>
+            <img id="preview-cnh" alt="" style="display:none">
+          </label>
+          <input type="file" id="file-cnh" accept="image/*" capture="environment" style="display:none">
+        </div>
+
+        <div id="err-msg" class="mdp-error-msg" style="display:none"></div>
+
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button type="button" class="mdp-btn secondary" onclick="goStep(3)">← Voltar</button>
+          <button type="submit" class="mdp-btn lg" style="flex:1" id="submit-btn">Enviar para aprovação ✓</button>
+        </div>
+
+        <div class="mdp-card" style="margin-top:14px;background:#fef3c7;border-color:#fcd34d;font-size:13px">
+          <p style="color:#78350f"><b>⚠ Próximos passos:</b><br>
+          Após enviar, seu cadastro passa por <b>2 etapas</b>:<br>
+          1️⃣ Pré-aprovação por um atendente da loja<br>
+          2️⃣ Aprovação final do gerente<br>
+          Você só poderá trabalhar após a aprovação final.</p>
+        </div>
+      </section>
+
+    </form>
+  </div>
+</main>
+
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/validators.js"></script>
+<script>
+(function () {
+  'use strict';
+  document.getElementById('back-slot').innerHTML = MDPUI.backButton('motoboy-entrada.html');
+
+  // Máscaras
+  document.getElementById('telefone').addEventListener('input', e => e.target.value = MDPValidators.maskTelefone(e.target.value));
+  document.getElementById('cpf').addEventListener('input', e => e.target.value = MDPValidators.maskCPF(e.target.value));
+  document.getElementById('placa').addEventListener('input', e => e.target.value = MDPValidators.maskPlaca(e.target.value));
+
+  let currentStep = 1;
+  let foto3x4Data = null;
+  let fotoCNHData = null;
+
+  window.goStep = function (n) {
+    if (n > currentStep && !validateStep(currentStep)) return;
+    document.getElementById('sec-' + currentStep).classList.remove('active');
+    document.getElementById('sec-' + n).classList.add('active');
+    for (let i = 1; i <= 4; i++) {
+      const bar = document.getElementById('bar-' + i);
+      bar.classList.remove('active', 'done');
+      if (i < n) bar.classList.add('done');
+      if (i === n) bar.classList.add('active');
+    }
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  function validateStep(s) {
+    if (s === 1) {
+      const nome = document.getElementById('nome').value.trim();
+      const tel = document.getElementById('telefone').value;
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const pw = document.getElementById('password').value;
+      if (nome.length < 3) return MDPUI.toast('Nome muito curto', 'error'), false;
+      if (!MDPValidators.isValidTelefone(tel)) return MDPUI.toast('Telefone inválido', 'error'), false;
+      if (!MDPValidators.isValidEmail(email)) return MDPUI.toast('E-mail inválido', 'error'), false;
+      if (!MDPValidators.isStrongPassword(pw)) return MDPUI.toast('Senha fraca', 'error'), false;
+      return true;
+    }
+    if (s === 2) {
+      if (!MDPValidators.isValidCPF(document.getElementById('cpf').value)) return MDPUI.toast('CPF inválido', 'error'), false;
+      if (!document.getElementById('rg').value.trim()) return MDPUI.toast('RG obrigatório', 'error'), false;
+      if (!MDPValidators.isValidCNH(document.getElementById('cnh').value)) return MDPUI.toast('Número de CNH inválido', 'error'), false;
+      if (!document.getElementById('cnh_categoria').value) return MDPUI.toast('Selecione categoria CNH', 'error'), false;
+      const val = document.getElementById('cnh_validade').value;
+      if (!val) return MDPUI.toast('Informe a validade da CNH', 'error'), false;
+      if (new Date(val) < new Date()) return MDPUI.toast('CNH vencida', 'error'), false;
+      return true;
+    }
+    if (s === 3) {
+      if (!MDPValidators.isValidPlaca(document.getElementById('placa').value)) return MDPUI.toast('Placa inválida', 'error'), false;
+      if (!document.getElementById('moto_cor').value.trim()) return MDPUI.toast('Cor obrigatória', 'error'), false;
+      if (!document.getElementById('moto_modelo').value.trim()) return MDPUI.toast('Modelo obrigatório', 'error'), false;
+      return true;
+    }
+    return true;
+  }
+
+  // Foto upload com redimensionamento
+  function setupPhoto(inputId, previewId, zoneId, target) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const zone = document.getElementById(zoneId);
+    input.addEventListener('change', function () {
+      const f = input.files && input.files[0];
+      if (!f) return;
+      if (f.size > 8 * 1024 * 1024) { MDPUI.toast('Imagem muito grande (max 8MB)', 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = function (ev) {
+        const img = new Image();
+        img.onload = function () {
+          // Redimensiona para max 800px
+          const max = 800;
+          let w = img.width, h = img.height;
+          if (w > max || h > max) {
+            if (w > h) { h = h * (max / w); w = max; } else { w = w * (max / h); h = max; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
+          preview.src = dataUrl;
+          preview.style.display = 'block';
+          zone.classList.add('has-photo');
+          if (target === '3x4') foto3x4Data = dataUrl;
+          else fotoCNHData = dataUrl;
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+  setupPhoto('file-3x4', 'preview-3x4', 'zone-3x4', '3x4');
+  setupPhoto('file-cnh', 'preview-cnh', 'zone-cnh', 'cnh');
+
+  function showErr(m) { const el = document.getElementById('err-msg'); el.textContent = m; el.style.display = 'block'; }
+
+  document.getElementById('signup-form').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    if (!MDPSecurity.rateLimit('signup-motoboy', 3)) return showErr('Muitas tentativas, aguarde');
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3)) return;
+    if (!foto3x4Data) return showErr('Envie a foto 3x4');
+    if (!fotoCNHData) return showErr('Envie a foto da CNH');
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.textContent = 'Enviando…';
+
+    try {
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      if (await MDPApi.findUserByEmail(email)) {
+        showErr('Já existe uma conta com este e-mail.');
+        btn.disabled = false; btn.textContent = 'Enviar para aprovação ✓';
+        return;
+      }
+      const pwHash = await MDPSecurity.hashPassword(document.getElementById('password').value);
+      const userId = 'user-mb-' + MDPSecurity.randomHex(8);
+
+      await MDPApi.create('users', {
+        id: userId,
+        email: email,
+        password_hash: pwHash.hash,
+        password_salt: pwHash.salt,
+        role: 'motoboy',
+        nome: document.getElementById('nome').value.trim(),
+        telefone: document.getElementById('telefone').value.replace(/\D/g, ''),
+        status: 'pendente',
+        created_at_ms: Date.now()
+      });
+
+      await MDPApi.create('motoboys_dados', {
+        id: 'mbd-' + MDPSecurity.randomHex(8),
+        user_id: userId,
+        cpf: document.getElementById('cpf').value.replace(/\D/g, ''),
+        rg: document.getElementById('rg').value.trim(),
+        cnh: document.getElementById('cnh').value.replace(/\D/g, ''),
+        cnh_categoria: document.getElementById('cnh_categoria').value,
+        cnh_validade: document.getElementById('cnh_validade').value,
+        placa: document.getElementById('placa').value.toUpperCase().replace(/[^A-Z0-9]/g, ''),
+        moto_modelo: document.getElementById('moto_modelo').value.trim(),
+        moto_cor: document.getElementById('moto_cor').value.trim(),
+        foto_cnh_data: fotoCNHData,
+        foto_3x4_data: foto3x4Data,
+        online: false,
+        ultimo_ping_ms: 0
+      });
+
+      // Tela de sucesso
+      document.querySelector('main').innerHTML =
+        '<div class="mdp-card" style="text-align:center;padding:40px 20px">' +
+        '<div style="font-size:60px">📤</div>' +
+        '<h2 style="margin:12px 0 8px">Cadastro enviado!</h2>' +
+        '<p style="color:var(--text-muted);max-width:380px;margin:0 auto 18px">Agora aguarde a equipe da loja avaliar:<br><br>1️⃣ <b>Atendente</b> faz a pré-aprovação<br>2️⃣ <b>Gerente</b> dá a aprovação final<br><br>Avisaremos por e-mail/telefone quando estiver pronto.</p>' +
+        '<a href="index.html" class="mdp-btn lg">Voltar ao início</a></div>';
+    } catch (e) {
+      console.error(e);
+      showErr('Erro ao enviar cadastro. Tente novamente.');
+      btn.disabled = false; btn.textContent = 'Enviar para aprovação ✓';
+    }
+  });
+})();
+</script>
+</body>
+</html>

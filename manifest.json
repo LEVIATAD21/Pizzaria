@@ -1,0 +1,35 @@
+{
+  "name": "Mania de Pizza",
+  "short_name": "Mania de Pizza",
+  "description": "Peça pizza, acompanhe a entrega ao vivo. A pizza mais gostosa de Queimados.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8f0",
+  "theme_color": "#e63946",
+  "lang": "pt-BR",
+  "categories": ["food", "shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2U2Mzk0NiIgcng9IjE4Ii8+PHRleHQgeT0iNzgiIHg9IjEwIiBmb250LXNpemU9IjcwIj7wn42VPC90ZXh0Pjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2U2Mzk0NiIgcng9IjE4Ii8+PHRleHQgeT0iNzgiIHg9IjEwIiBmb250LXNpemU9IjcwIj7wn42VPC90ZXh0Pjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cardápio",
+      "short_name": "Pedir",
+      "url": "/comprador.html",
+      "icons": [{ "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🍕</text></svg>", "sizes": "96x96" }]
+    }
+  ]
+}

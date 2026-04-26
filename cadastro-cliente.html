@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e63946">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https: https://viacep.com.br;">
+<title>Criar conta de Cliente | Mania de Pizza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/global.css">
+<style>
+  .step-bar { display:flex; gap:6px; margin-bottom:18px; }
+  .step-bar .step { flex:1; height:6px; background:#e5e7eb; border-radius:3px; transition:background .25s; }
+  .step-bar .step.active { background: var(--primary); }
+  .step-bar .step.done { background: var(--success); }
+  .step-section { display: none; }
+  .step-section.active { display: block; animation: fadeIn .25s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+</style>
+</head>
+<body>
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>Criar conta de Cliente</h1>
+  <span class="role-badge">Cliente</span>
+</header>
+
+<main class="mdp-container" style="max-width:540px">
+
+  <div class="mdp-card">
+    <div class="step-bar" aria-label="Progresso do cadastro">
+      <div class="step active" id="bar-1"></div>
+      <div class="step" id="bar-2"></div>
+      <div class="step" id="bar-3"></div>
+    </div>
+
+    <form id="signup-form" autocomplete="on" novalidate>
+
+      <!-- ETAPA 1: Dados pessoais -->
+      <section class="step-section active" id="sec-1">
+        <h2>Quem é você?</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Vamos começar com seus dados básicos.</p>
+
+        <div class="mdp-field">
+          <label for="nome">Nome completo *</label>
+          <input type="text" id="nome" class="mdp-input" required maxlength="120" autocomplete="name" placeholder="Ex: Maria Silva">
+        </div>
+
+        <div class="mdp-field">
+          <label for="telefone">Celular / WhatsApp *</label>
+          <input type="tel" id="telefone" class="mdp-input" required maxlength="16" inputmode="numeric" autocomplete="tel" placeholder="(21) 99999-9999">
+          <div class="hint">Usaremos para confirmar seu pedido</div>
+        </div>
+
+        <div class="mdp-field">
+          <label for="email">E-mail *</label>
+          <input type="email" id="email" class="mdp-input" required maxlength="120" inputmode="email" autocomplete="email" placeholder="seu@email.com">
+        </div>
+
+        <div class="mdp-field">
+          <label for="password">Senha *</label>
+          <input type="password" id="password" class="mdp-input" required minlength="8" maxlength="80" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+          <div class="hint">Mínimo 8 caracteres com letras e números</div>
+        </div>
+
+        <div class="mdp-field">
+          <label for="password2">Confirme a senha *</label>
+          <input type="password" id="password2" class="mdp-input" required minlength="8" maxlength="80" autocomplete="new-password">
+        </div>
+
+        <button type="button" class="mdp-btn full lg" onclick="goStep(2)">Continuar →</button>
+      </section>
+
+      <!-- ETAPA 2: Endereço -->
+      <section class="step-section" id="sec-2">
+        <h2>Onde você quer receber?</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Seu endereço principal de entrega. Você pode adicionar outros depois.</p>
+
+        <div class="mdp-field">
+          <label for="cep">CEP *</label>
+          <input type="text" id="cep" class="mdp-input" required maxlength="9" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000">
+          <div class="hint">Digite o CEP que vamos preencher os campos</div>
+          <div id="cep-status" class="hint"></div>
+        </div>
+
+        <div class="mdp-row">
+          <div class="mdp-field">
+            <label for="rua">Rua *</label>
+            <input type="text" id="rua" class="mdp-input" required maxlength="120" autocomplete="address-line1">
+          </div>
+          <div class="mdp-field">
+            <label for="numero">Número *</label>
+            <input type="text" id="numero" class="mdp-input" required maxlength="10" placeholder="123">
+          </div>
+        </div>
+
+        <div class="mdp-field">
+          <label for="complemento">Complemento</label>
+          <input type="text" id="complemento" class="mdp-input" maxlength="80" placeholder="Apto 201, Bloco B (opcional)">
+        </div>
+
+        <div class="mdp-row">
+          <div class="mdp-field">
+            <label for="bairro">Bairro *</label>
+            <input type="text" id="bairro" class="mdp-input" required maxlength="80">
+          </div>
+          <div class="mdp-field">
+            <label for="cidade">Cidade *</label>
+            <input type="text" id="cidade" class="mdp-input" required maxlength="80" value="Queimados">
+          </div>
+        </div>
+
+        <div class="mdp-row">
+          <div class="mdp-field">
+            <label for="estado">UF *</label>
+            <input type="text" id="estado" class="mdp-input" required maxlength="2" value="RJ" style="text-transform:uppercase">
+          </div>
+          <div class="mdp-field">
+            <label for="apelido">Apelido</label>
+            <input type="text" id="apelido" class="mdp-input" maxlength="30" placeholder="Casa, Trabalho..." value="Casa">
+          </div>
+        </div>
+
+        <div class="mdp-field">
+          <label for="referencia">Ponto de referência</label>
+          <input type="text" id="referencia" class="mdp-input" maxlength="120" placeholder="Próximo ao mercado X (opcional)">
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button type="button" class="mdp-btn secondary" onclick="goStep(1)">← Voltar</button>
+          <button type="button" class="mdp-btn lg" style="flex:1" onclick="goStep(3)">Continuar →</button>
+        </div>
+      </section>
+
+      <!-- ETAPA 3: Confirmação -->
+      <section class="step-section" id="sec-3">
+        <h2>Tudo certo?</h2>
+        <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Revise seus dados antes de criar a conta.</p>
+
+        <div id="resumo" class="mdp-card" style="background:#f9fafb;margin-bottom:0"></div>
+
+        <div id="err-msg" class="mdp-error-msg" style="display:none;margin-top:12px"></div>
+
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button type="button" class="mdp-btn secondary" onclick="goStep(2)">← Voltar</button>
+          <button type="submit" class="mdp-btn lg" style="flex:1" id="submit-btn">Criar minha conta ✓</button>
+        </div>
+      </section>
+
+    </form>
+  </div>
+</main>
+
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/validators.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  document.getElementById('back-slot').innerHTML = MDPUI.backButton('cliente-entrada.html');
+
+  // Máscaras dinâmicas
+  document.getElementById('telefone').addEventListener('input', function (e) {
+    e.target.value = MDPValidators.maskTelefone(e.target.value);
+  });
+  document.getElementById('cep').addEventListener('input', function (e) {
+    e.target.value = MDPValidators.maskCEP(e.target.value);
+    if (e.target.value.replace(/\D/g, '').length === 8) lookupCEP();
+  });
+
+  let cepLookupBusy = false;
+  async function lookupCEP() {
+    if (cepLookupBusy) return;
+    cepLookupBusy = true;
+    const status = document.getElementById('cep-status');
+    status.textContent = 'Consultando CEP…';
+    status.style.color = 'var(--text-muted)';
+    try {
+      const data = await MDPValidators.lookupCEP(document.getElementById('cep').value);
+      if (data.rua) document.getElementById('rua').value = data.rua;
+      if (data.bairro) document.getElementById('bairro').value = data.bairro;
+      if (data.cidade) document.getElementById('cidade').value = data.cidade;
+      if (data.estado) document.getElementById('estado').value = data.estado;
+      status.textContent = '✓ Endereço encontrado';
+      status.style.color = 'var(--success)';
+      setTimeout(function () {
+        const num = document.getElementById('numero');
+        if (num) num.focus();
+      }, 100);
+    } catch (e) {
+      status.textContent = '⚠ ' + e.message + ' — preencha manualmente';
+      status.style.color = 'var(--warn)';
+    } finally {
+      cepLookupBusy = false;
+    }
+  }
+
+  // Steps
+  let currentStep = 1;
+  /* removed */
+  window.goStep = function (n) {
+    if (n > currentStep && !validateStep(currentStep)) return;
+    if (n === 3) renderResumo();
+
+    document.getElementById('sec-' + currentStep).classList.remove('active');
+    document.getElementById('sec-' + n).classList.add('active');
+
+    for (let i = 1; i <= 3; i++) {
+      const bar = document.getElementById('bar-' + i);
+      bar.classList.remove('active', 'done');
+      if (i < n) bar.classList.add('done');
+      if (i === n) bar.classList.add('active');
+    }
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  function validateStep(step) {
+    if (step === 1) {
+      const nome = document.getElementById('nome').value.trim();
+      const tel = document.getElementById('telefone').value;
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const pw = document.getElementById('password').value;
+      const pw2 = document.getElementById('password2').value;
+
+      if (!nome || nome.length < 3) { MDPUI.toast('Nome muito curto', 'error'); return false; }
+      if (!MDPValidators.isValidTelefone(tel)) { MDPUI.toast('Telefone inválido (10 ou 11 dígitos)', 'error'); return false; }
+      if (!MDPValidators.isValidEmail(email)) { MDPUI.toast('E-mail inválido', 'error'); return false; }
+      if (!MDPValidators.isStrongPassword(pw)) { MDPUI.toast('Senha fraca: mínimo 8 chars com letras e números', 'error'); return false; }
+      if (pw !== pw2) { MDPUI.toast('As senhas não conferem', 'error'); return false; }
+      return true;
+    }
+    if (step === 2) {
+      const f = ['cep', 'rua', 'numero', 'bairro', 'cidade', 'estado'];
+      for (const id of f) {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) { MDPUI.toast('Preencha: ' + el.previousElementSibling.textContent.replace('*',''), 'error'); el.focus(); return false; }
+      }
+      if (!MDPValidators.isValidCEP(document.getElementById('cep').value)) { MDPUI.toast('CEP inválido', 'error'); return false; }
+      return true;
+    }
+    return true;
+  }
+
+  function renderResumo() {
+    const esc = MDPSecurity.escapeHtml;
+    const v = id => document.getElementById(id).value.trim();
+    document.getElementById('resumo').innerHTML =
+      '<div style="display:grid;gap:6px;font-size:14px">' +
+      '<div><b>Nome:</b> ' + esc(v('nome')) + '</div>' +
+      '<div><b>Telefone:</b> ' + esc(v('telefone')) + '</div>' +
+      '<div><b>E-mail:</b> ' + esc(v('email')) + '</div>' +
+      '<div style="margin-top:6px;border-top:1px solid #e5e7eb;padding-top:6px"><b>Endereço (' + esc(v('apelido') || 'Casa') + '):</b></div>' +
+      '<div>' + esc(v('rua')) + ', ' + esc(v('numero')) +
+      (v('complemento') ? ' — ' + esc(v('complemento')) : '') + '</div>' +
+      '<div>' + esc(v('bairro')) + ', ' + esc(v('cidade')) + '/' + esc(v('estado')) + '</div>' +
+      '<div>CEP ' + esc(v('cep')) + '</div>' +
+      (v('referencia') ? '<div><i>Ref: ' + esc(v('referencia')) + '</i></div>' : '') +
+      '</div>';
+  }
+
+  function showErr(msg) {
+    const el = document.getElementById('err-msg');
+    el.textContent = msg; el.style.display = 'block';
+  }
+
+  document.getElementById('signup-form').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    if (!MDPSecurity.rateLimit('signup-cliente', 4)) {
+      showErr('Muitas tentativas. Aguarde.'); return;
+    }
+    if (!validateStep(1) || !validateStep(2)) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.textContent = 'Criando conta…';
+
+    try {
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const existente = await MDPApi.findUserByEmail(email);
+      if (existente) {
+        showErr('Já existe uma conta com este e-mail. Tente fazer login.');
+        btn.disabled = false; btn.textContent = 'Criar minha conta ✓';
+        return;
+      }
+
+      const pwHash = await MDPSecurity.hashPassword(document.getElementById('password').value);
+      const userId = 'user-cli-' + MDPSecurity.randomHex(8);
+
+      await MDPApi.create('users', {
+        id: userId,
+        email: email,
+        password_hash: pwHash.hash,
+        password_salt: pwHash.salt,
+        role: 'cliente',
+        nome: document.getElementById('nome').value.trim(),
+        telefone: document.getElementById('telefone').value.replace(/\D/g, ''),
+        status: 'ativo',
+        created_at_ms: Date.now()
+      });
+
+      // Cria endereço principal
+      await MDPApi.create('enderecos', {
+        id: 'end-' + MDPSecurity.randomHex(8),
+        user_id: userId,
+        apelido: document.getElementById('apelido').value.trim() || 'Casa',
+        cep: document.getElementById('cep').value.replace(/\D/g, ''),
+        rua: document.getElementById('rua').value.trim(),
+        numero: document.getElementById('numero').value.trim(),
+        complemento: document.getElementById('complemento').value.trim(),
+        bairro: document.getElementById('bairro').value.trim(),
+        cidade: document.getElementById('cidade').value.trim(),
+        estado: document.getElementById('estado').value.trim().toUpperCase(),
+        referencia: document.getElementById('referencia').value.trim(),
+        principal: true
+      });
+
+      // Login automático
+      await MDPSecurity.createSession({
+        id: userId, email: email, role: 'cliente',
+        nome: document.getElementById('nome').value.trim()
+      });
+
+      MDPUI.toast('Conta criada! Bem-vindo 🍕', 'success');
+      setTimeout(function () { location.href = 'comprador.html'; }, 700);
+    } catch (e) {
+      console.error(e);
+      showErr('Erro ao criar conta. Tente novamente.');
+      btn.disabled = false; btn.textContent = 'Criar minha conta ✓';
+    }
+  });
+})();
+</script>
+</body>
+</html>

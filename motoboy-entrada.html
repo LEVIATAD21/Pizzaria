@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1d4ed8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https:;">
+<title>Motoboy — Entrar ou Cadastrar | Mania de Pizza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/global.css">
+</head>
+<body>
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>Acesso do Motoboy</h1>
+  <span class="role-badge" style="background:#dbeafe;color:#1e40af">Motoboy</span>
+</header>
+
+<main class="mdp-container" style="max-width:480px">
+
+  <div class="mdp-card" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:6px">🛵</div>
+    <h2 style="margin-bottom:4px">Bora trabalhar?</h2>
+    <p style="color:var(--text-muted);font-size:14px">Já está cadastrado? Faça login. É novo? Envie seus documentos para aprovação.</p>
+  </div>
+
+  <a href="login.html?role=motoboy" class="mdp-btn full lg" style="margin-bottom:12px;text-decoration:none;background:#1d4ed8">
+    Já sou motoboy — Entrar
+  </a>
+
+  <a href="cadastro-motoboy.html" class="mdp-btn outline full lg" style="text-decoration:none;color:#1d4ed8;border-color:#1d4ed8">
+    Quero me cadastrar
+  </a>
+
+  <div class="mdp-card" style="margin-top:20px;background:#fef3c7;border-color:#fcd34d">
+    <h3 style="color:#92400e;font-size:14px;margin-bottom:6px">⚠️ Importante</h3>
+    <p style="font-size:13px;color:#78350f">Após o cadastro, seus documentos passarão por aprovação da equipe da loja (atendente + gerente). Só após a aprovação final do gerente você poderá começar a trabalhar.</p>
+  </div>
+</main>
+
+<script src="js/security.js"></script>
+<script src="js/ui.js"></script>
+<script>
+  document.getElementById('back-slot').innerHTML = MDPUI.backButton('index.html');
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https: wss: https://*.tile.openstreetmap.org; media-src 'self' blob:;">
+<title>Motoboy | Mania de Pizza</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/global.css">
+<style>
+  body { background: #0f172a; color: #e2e8f0; }
+  .mdp-topbar { background: #1e293b; color: #fff; border-color: #334155; }
+  .mdp-topbar h1 { color: #60a5fa; }
+  .mdp-card { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+  .mdp-input, .mdp-select, .mdp-textarea {
+    background: #0f172a; color: #e2e8f0; border-color: #475569;
+  }
+  .mdp-back-btn { color: #fff; }
+  .status-pill {
+    padding: 4px 12px; border-radius: 999px; font-size: 12px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: .3px;
+  }
+  .status-pill.online { background: #059669; color: #fff; }
+  .status-pill.offline { background: #475569; color: #fff; }
+  .big-btn {
+    width: 100%; padding: 24px; border: none; border-radius: 16px;
+    font: 700 19px inherit; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.4);
+    transition: transform .1s;
+  }
+  .big-btn:active { transform: scale(.98); }
+  .big-btn.primary { background: #2563eb; color: #fff; }
+  .big-btn.success { background: #059669; color: #fff; }
+  .big-btn.danger { background: #dc2626; color: #fff; }
+  .big-btn[disabled] { opacity: .4; cursor: not-allowed; }
+  .entrega-card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 14px;
+    padding: 16px; margin-bottom: 12px;
+  }
+  .entrega-card.ativa { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.25); }
+  /* Scanner */
+  .scanner-wrap {
+    position: relative; width: 100%; aspect-ratio: 1; border-radius: 16px;
+    overflow: hidden; background: #000; max-width: 400px; margin: 0 auto;
+  }
+  .scanner-wrap video { width: 100%; height: 100%; object-fit: cover; }
+  .scanner-frame {
+    position: absolute; inset: 12%;
+    border: 4px solid #10b981; border-radius: 18px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,.4);
+    pointer-events: none;
+  }
+  .scanner-line {
+    position: absolute; left: 12%; right: 12%; height: 2px; background: #10b981;
+    box-shadow: 0 0 12px #10b981;
+    animation: scanLine 2s ease-in-out infinite;
+  }
+  @keyframes scanLine { 0%,100%{top:12%} 50%{top:88%} }
+  #map-rota { height: 280px; border-radius: 14px; }
+  .map-dark .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.95); }
+</style>
+</head>
+<body>
+
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>🛵 Motoboy</h1>
+  <span class="status-pill offline" id="status-pill">OFFLINE</span>
+</header>
+
+<main class="mdp-container" style="max-width:560px">
+  <div id="status-card"></div>
+  <div id="entregas-host"></div>
+</main>
+
+<!-- Modal scanner -->
+<div id="scanner-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;padding:20px;overflow-y:auto">
+  <div style="max-width:480px;margin:0 auto;color:#fff">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h2 style="font-size:20px">📷 Escanear QR Code da loja</h2>
+      <button onclick="closeScanner()" style="background:#dc2626;color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <p id="scanner-status" style="color:#94a3b8;margin-bottom:12px;text-align:center;font-size:14px">Inicializando câmera…</p>
+    <div class="scanner-wrap">
+      <video id="scanner-video" playsinline muted autoplay></video>
+      <div class="scanner-frame"></div>
+      <div class="scanner-line"></div>
+    </div>
+    <p style="text-align:center;color:#94a3b8;margin-top:14px;font-size:13px">Aponte para o QR Code exibido pelo gerente.<br>O código muda a cada 20 segundos.</p>
+    <button onclick="closeScanner()" class="mdp-btn secondary full" style="margin-top:14px">Cancelar</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/qr-core.js"></script>
+<script src="js/motoboy.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0891b2">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; img-src 'self' https: data: blob:; connect-src 'self' https: wss: https://viacep.com.br;">
+<title>Painel do Atendente | Mania de Pizza</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/global.css">
+<style>
+  body { background: #f0f9ff; }
+  .mdp-topbar { background: #0891b2; color: #fff; border-color: #0e7490; }
+  .mdp-topbar h1 { color: #fff; }
+  .mdp-back-btn { color: #fff; }
+  .role-badge { background: #cffafe !important; color: #155e75 !important; }
+  .tabs { display: flex; gap: 4px; padding: 12px 18px 0; max-width: 1280px; margin: 0 auto; flex-wrap: wrap; }
+  .tab {
+    padding: 10px 18px; border-radius: 10px 10px 0 0; background: #fff;
+    border: 1px solid #cbd5e1; border-bottom: none; cursor: pointer;
+    font: 600 14px inherit; color: #475569;
+  }
+  .tab.active { background: var(--surface); color: var(--primary-dark); border-color: var(--primary-light); }
+  .tab .badge-num {
+    display: inline-block; min-width: 20px; padding: 2px 6px;
+    background: #f43f5e; color: #fff; border-radius: 999px;
+    font-size: 11px; margin-left: 6px;
+  }
+  .panel { background: #fff; border-radius: 0 18px 18px 18px; padding: 18px; }
+  .motoboy-card {
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+    margin-bottom: 10px; background: #fff;
+    display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center;
+  }
+  .motoboy-card img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: #f1f5f9; }
+  .motoboy-card .info b { font-size: 15px; }
+  .motoboy-card .info small { color: var(--text-muted); display: block; }
+  .pedido-balcao-form { display: grid; gap: 10px; }
+</style>
+</head>
+<body>
+
+<header class="mdp-topbar">
+  <span id="back-slot"></span>
+  <h1>🏪 Atendente — Balcão</h1>
+  <span class="role-badge">Atendente</span>
+  <button class="mdp-btn secondary" style="padding:6px 12px;font-size:13px" id="user-chip">…</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="motoboys">Motoboys pendentes <span class="badge-num" id="badge-pend">0</span></button>
+  <button class="tab" data-tab="balcao">Registrar Pedido (Balcão)</button>
+  <button class="tab" data-tab="meus-pedidos">Meus Pedidos</button>
+</nav>
+
+<main class="mdp-container wide" style="margin-top:0">
+  <div class="panel" id="panel-motoboys"></div>
+  <div class="panel" id="panel-balcao" style="display:none"></div>
+  <div class="panel" id="panel-meus-pedidos" style="display:none"></div>
+</main>
+
+<script src="js/security.js"></script>
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/validators.js"></script>
+<script src="js/painel-atendente.js"></script>
+</body>
+</html>
