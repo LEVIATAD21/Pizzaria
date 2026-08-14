@@ -1,5 +1,7 @@
 # 🍕 Mania de Pizza — V3
 
+![Loop visual do projeto Mania de Pizza](assets/pizzaria-loop.svg)
+
 <p align="center">
   <img src="assets/pizzaria-hero.png" alt="Ilustração do sistema Mania de Pizza para pedidos e delivery" width="100%" />
 </p>
