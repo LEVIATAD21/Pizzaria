@@ -1,5 +1,11 @@
 # 🍕 Mania de Pizza — V3
 
+<p align="center">
+  <img src="assets/pizzaria-hero.png" alt="Ilustração do sistema Mania de Pizza para pedidos e delivery" width="100%" />
+</p>
+
+<p align="center"><strong>Plataforma de pedidos, operação e delivery para pizzarias.</strong></p>
+
 Sistema SaaS completo de delivery para a Mania de Pizza (Queimados-RJ).
 **Versão 3** — com hierarquia de aprovação, scanner QR funcional, cadastros estilo iFood e download em ZIP.
 
