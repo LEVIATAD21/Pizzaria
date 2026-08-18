@@ -1,3 +1,5 @@
+![Motion Banner](assets/motion-banner.gif)
+
 # 🍕 Mania de Pizza — V3
 
 ![Loop visual do projeto Mania de Pizza](assets/pizzaria-loop.svg)
